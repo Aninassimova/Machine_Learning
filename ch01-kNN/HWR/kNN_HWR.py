@@ -23,36 +23,6 @@ def classify0(inX,dataSet,labels,k):
     sortedClassCount=sorted(classCount.items(),key=operator.itemgetter(1),reverse=True) # classCount.items()把字典转化为列表，每个元素是一个tuple，tuple的第一个元素是键，第二个元素是值
     return sortedClassCount[0][0] # 返回出现次数最多到label值，即为当前点的预测分类
 
-#将文本转换为矩阵
-def file2matrix(filename):
-    with open(filename) as fp:
-        Arr_lines = fp.readlines() #读取全部行
-        number = len(Arr_lines) #行数
-        #初始化数据为m行3列（飞行里程，游戏时间，冰淇淋数）
-        #标签单独创建一个向量保存
-        return_mat = zeros((number, 3))
-        label_vec = []
-        index = 0
-
-        for line in Arr_lines:
-            line = line.strip()
-            listFromLine = line.split('\t')  #按换行符分割数据
-            #将文本数据前三行存入数据矩阵，第四行存入标签向量
-            return_mat[index,:] = listFromLine[0:3]
-            label_vec.append(int(listFromLine[3]))
-            index += 1
-    return return_mat, label_vec
-
-#归一化
-def autoNorm(dataSet):
-    minvals=dataSet.min(0)
-    maxvals=dataSet.max(0)
-    ranges=maxvals-minvals
-    normDataSet=zeros(shape(dataSet))
-    m=dataSet.shape[0] #行数
-    normDataSet=(dataSet-tile(minvals,(m,1)))/tile(ranges,(m,1)) #归一化公式
-    return normDataSet,ranges,minvals
-
 #1.將图像转化为向量
 def img2vector(filename):
     fr=open(filename) #打开文件
