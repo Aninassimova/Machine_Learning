@@ -2,7 +2,6 @@ from numpy import * #载入numpy库
 import numpy as np
 import operator #载入operator模块
 from os import listdir #从os模块导入listdir，可以给出给定目录文件名
-import kNN
 
 #简单kNN分类器
 def classify0(inX,dataSet,labels,k):
@@ -69,29 +68,32 @@ def img2vector(filename):
 
 #2.使用k近邻算法识别手写数字
 def handwritingClassTest():
-    #获取目录内容
-    hwLabels = [] #测试集的标签矩阵
+    #获取训练集目录内容
+    hwLabels = [] #训练集的标签矩阵
     trainingFileList = listdir('digits/trainingDigits') #返回trainingDigits目录下的文件名
     m = len(trainingFileList) #返回文件夹下文件的个数(1934)
     trainingMat = np.zeros((m, 1024)) #初始化训练的Mat矩阵,测试集向量大小为训练数据个数*1024，即多少张图像，就有多少行，一行存一个图像
-
     #从文件名中解析出训练集的类别标签
     for i in range(m):
         fileNameStr = trainingFileList[i] #获得文件的名字
-        classNumber = int(fileNameStr.split('_')[0])##第一个字符串存储标签，故取分离后的第一个元素，即相当于获取了该图像类别标签
-        hwLabels.append(classNumber)#将获得的类别标签添加到hwLabels中
-        trainingMat[i,:] = img2vector('digits/trainingDigits/%s' % (fileNameStr))#将每一个文件的1x1024数据存储到trainingMat中
-    neigh = kNN(n_neighbors = 3, algorithm = 'auto')#构建kNN分类器,第一个参数表示近邻数为3，算法为权重均匀的算法
-    neigh.fit(trainingMat, hwLabels)#拟合模型, trainingMat为测试矩阵,hwLabels为对应的标签
-    testFileList = listdir('digits/trainingDigits')#返回testDigits目录下的文件列表
-    errorCount = 0.0#错误检测计数，初始值为0
-    mTest = len(testFileList)#测试数据的数量
-    for i in range(mTest):#从文件中解析出测试集的类别并进行分类测试
+        classNumber = int(fileNameStr.split('_')[0]) #第一个字符串存储标签，故取分离后的第一个元素，即相当于获取了该图像类别标签
+        hwLabels.append(classNumber) #将获得的类别标签添加到hwLabels中
+        trainingMat[i,:] = img2vector('digits/trainingDigits/%s' % (fileNameStr)) #将每一个文件的1x1024数据存储到trainingMat中
+
+    #获取测试集目录内容
+    testFileList = listdir('digits/trainingDigits') #返回testDigits目录下的文件列表
+    errorCount = 0.0 #错误检测计数，初始值为0
+    mTest = len(testFileList) #测试数据的数量(1934)
+    #从文件名中解析出测试集的类别标签
+    for i in range(mTest): #从文件中解析出测试集的类别并进行分类测试
         fileNameStr = testFileList[i]#获得文件的名字
         classNumber = int(fileNameStr.split('_')[0])#获得分类的数字标签
-        vectorUnderTest = img2vector('digits/trainingDigits/%s' % (fileNameStr)) #获得测试集的1x1024向量,用于训练
-        classifierResult = neigh.predict(vectorUnderTest)#获得预测结果
+        vectorUnderTest = img2vector('digits/trainingDigits/%s' % (fileNameStr)) #获得测试集的1x1024向量
+        classifierResult = classify0(vectorUnderTest,trainingMat,hwLabels,3)#获得预测结果
         print("分类返回结果为%d\t真实结果为%d" % (classifierResult, classNumber))
         if(classifierResult != classNumber):#如果预测结果与实际结果不符，则错误数加一
             errorCount += 1.0
     print("总共错了%d个数据\n错误率为%f%%" % (errorCount, errorCount/mTest * 100))#获取错误率
+
+#测试
+handwritingClassTest()
