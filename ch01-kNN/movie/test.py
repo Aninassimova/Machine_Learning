@@ -27,3 +27,14 @@ print(d)
 sortedClassCount=sorted(classCount.items(),key=operator.itemgetter(1),reverse=True) #按位置1元素降序排列
 print(sortedClassCount)
 print(sortedClassCount[0][0]) # 返回出现次数最多到label值，即为当前点的预测分类
+
+dataSet=[[1,1,'yes'],
+        [1,0,'no'],
+        [0,1,'no'],
+        [1,1,'yes'],
+        [0,0,'yes']]
+numFeature=len(dataSet[0])-1 #特征数=数据列长-1（类别）
+for i in range(numFeature):
+    featList=[example[i] for example in dataSet]
+    uniqueVals=set(featList)
+    print(uniqueVals)
