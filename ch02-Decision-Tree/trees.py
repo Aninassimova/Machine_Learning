@@ -1,4 +1,5 @@
 from math import log
+import operator
 
 #1.计算给定数据集的香农熵
 def calcShannonEnt(dataSet):
@@ -52,16 +53,46 @@ def chooseBestFeatureToSplit(dataSet):
         featList=[example[i] for example in dataSet] #循环取数据集的第i列特征
         uniqueVals=set(featList) #去重，提取第i列特征值
         newEntropy=0.0
-        #计算每种划分方式的信息熵
+        #计算每种划分方式的信息熵 公式：H(Y|X)=P(X=0)H(Y|X=0)+P(X=1)H(Y|X=1)——X为特征，这里的数据集中假设它有0和1两个取值；Y为类别，即yes和no
         for value in uniqueVals:
             subDataSet=splitDataSet(dataSet,i,value) #划分出 第i列特征值为value的数据集（去除了第i列特征）
             prob=len(subDataSet)/float(len(dataSet)) #第i列特征取值为value的概率
             newEntropy += prob*calcShannonEnt(subDataSet) #按第i列特征划分的信息熵
-        #计算最好的信息增益#將最信息增益先置零
+        #计算最好的信息增益
         infoGain=baseEntropy-newEntropy #信息增益（熵的减少）=按类别划分的信息熵-按第i列特征划分的信息熵
         if infoGain>bestInfoGain: #如果信息增益比现有最好增益还大
             bestInfoGain=infoGain #则取代他
             bestFeature=i #并记下此时的分割位置
     return bestFeature #返回分割位置
 #测试
-print(chooseBestFeatureToSplit(myDat))
+#print(chooseBestFeatureToSplit(myDat)) #0
+
+#3.递归构建决策树
+#投票表决
+def majorityCnt(classList):
+    classCount={} #建立一个数据字典，里面存储所有的类别
+    for vote in classList:
+        if vote not in classList.key():classCount[vote]=0 #如果有新的类别，则创立一个新的元素代表该种类
+        classCount[vote] += 1 #否则该元素加一
+    sortedClassCount=sorted(classCount.items(),key=operator.itemgetter(1),reverse=True) #对数据集进行排序，第二行作为排序依据，从高到低排
+    return  sortedClassCount[0][0] #把第一个元素返回，即返回出现次数最多的那个元素
+
+#创建树
+def createTree(dataSet,labels):
+    classList=[example[-1] for example in dataSet] #以数据集的最后一列作为新的一个列表
+    if classList.count(classList[0])==len(classList): #如果分类列表完全相同
+        return classList[0] #停止继续划分
+    if len(dataSet[0])==1: #如果遍历完所有特征，仍不能划分为唯一门类
+        return majorityCnt(classList) #返回出现出现次数最多的那个类标签
+    bestFeat=chooseBestFeatureToSplit(dataSet) #否则选择最优特征
+    bestFeatLabel=labels[bestFeat] #同时將最优特征的标签赋予bestFeatureLabel
+    myTree = {bestFeatLabel:{}} #根据最优标签生成树
+    del(labels[bestFeat]) #將刚刚生成树所使用的标签去掉
+    featValues=[example[bestFeat] for example in dataSet] #获取所有训练集中最优特征属性值
+    uniqueVals=set(featValues) #把重复的属性去掉，并放到uniqueVals里
+    for value in uniqueVals: #遍历特征的所有属性值
+        subLabels=labels[:] #先把原始标签数据完全复制，防止对原列表干扰
+        myTree[bestFeatLabel][value]=createTree(splitDataSet(dataSet,bestFeat,value),subLabels) #再以该特征来划分决策树
+    return myTree #返回决策树
+#测试
+print(createTree(myDat,labels))

@@ -8,11 +8,11 @@ def createDataSet(): # 建立数据集
 
 def classify0(inX,dataSet,labels,k): # 简单kNN分类器
     # 首先用欧式距离法计算已知类别数据集与当前点的距离
-    dataSetSize=dataSet.shape[0] # 读取数据集的行数，并把行数放到dataSetSize里，shape[]用来读取矩阵的行列数，shape[1]表示读取列数
+    dataSetSize=dataSet.shape[0] # 读取数据集的行数，并把行数放到dataSetSize里，shape[]用来读取矩阵的行数，shape[1]表示读取列数
     diffMat=tile(inX,(dataSetSize,1))-dataSet # tile(inX,(dataSetSize,1))复制比较向量inX，tile的功能是告诉inX需要复制多少遍，这里复制成(dataSetSize行，1次)
                                               # 目的是把inX转化成与数据集相同大小，再与数据集矩阵相减，形成的差值矩阵存放在diffMat里
     sqDiffMat=diffMat**2 # 注意这里是把矩阵里的各个元素依次平方，如（[-1,-1.1],[-1,-1]）执行该操作后为（[1,1.21],[1,1]）
-    sqDistances=sqDiffMat.sum(axis=1) # 实现计算计算结果，axis表矩阵每一行元素相加，如（[1,1.21],[1,1]）,执行该操作后为（2.21，2）
+    sqDistances=sqDiffMat.sum(axis=1) # 实现计算结果，axis表矩阵每一行元素相加，如（[1,1.21],[1,1]）,执行该操作后为（2.21，2）
     distances=sqDistances**0.5 # 开根号
 
     # 选择距离最小的k个点
@@ -21,7 +21,7 @@ def classify0(inX,dataSet,labels,k): # 简单kNN分类器
     for i in range(k): # 按顺序对标签进行计数
         voteIlabel=labels[sortedDisIndicies[i]] # 第i名对应的类别
         classCount[voteIlabel]=classCount.get(voteIlabel,0)+1 # 计数:归类为A（B）的次数，并给字典赋值
-
+    print(classCount)
     # 按归类次数排序
     sortedClassCount=sorted(classCount.items(),key=operator.itemgetter(1),reverse=True) # classCount.items()把字典转化为列表，每个元素是一个tuple，tuple的第一个元素是键，第二个元素是值
                                                                                         # key=operator.itemgetter(1)按位置1元素降序排列
