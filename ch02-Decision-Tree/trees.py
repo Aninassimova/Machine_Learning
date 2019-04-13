@@ -74,7 +74,7 @@ def majorityCnt(classList):
     for vote in classList:
         if vote not in classList.key():classCount[vote]=0 #如果有新的类别，则创立一个新的元素代表该种类
         classCount[vote] += 1 #否则该元素加一
-    sortedClassCount=sorted(classCount.items(),key=operator.itemgetter(1),reverse=True) #对数据集进行排序，第二行作为排序依据，从高到低排
+    sortedClassCount=sorted(classCount.items(),key=operator.itemgetter(1),reverse=True) #对数据集进行排序，第二列作为排序依据，从高到低排
     return  sortedClassCount[0][0] #把第一个元素返回，即返回出现次数最多的那个元素
 
 #创建树
@@ -95,4 +95,44 @@ def createTree(dataSet,labels):
         myTree[bestFeatLabel][value]=createTree(splitDataSet(dataSet,bestFeat,value),subLabels) #再以该特征来划分决策树
     return myTree #返回决策树
 #测试
-print(createTree(myDat,labels))
+#print(createTree(myDat,labels))
+
+#4.使用决策树执行分类
+def classify(inputTree,featLabels,testVec):# inputTree:决策树   featLabels:测试数据标签['no surfacing', 'flippers']   testVec:测试数据值[1,0]
+    firstStr=list(inputTree.keys())[0] #no surfacing--flippers
+    secondDict=inputTree[firstStr] #{0: 'no', 1: {'flippers': {0: 'no', 1: 'yes'}}}--{0: 'no', 1: 'yes'}
+    featIndex=featLabels.index(firstStr) #将标签字符串转换为索引 0--1
+    for key in secondDict.keys(): #dict_keys([0, 1])
+        if testVec[featIndex]==key: #testVec[featIndex]为当前最优特征的值，1表示有该特征，0表示无该特征
+            if type(secondDict[key]).__name__=='dict':
+                classLabel=classify(secondDict[key],featLabels,testVec)
+            else:   classLabel=secondDict[key]
+    return classLabel
+#测试
+def retrieveTree(i):
+    listOfTrees =[{'no surfacing': {0: 'no', 1: {'flippers': {0: 'no', 1: 'yes'}}}},
+                  {'no surfacing': {0: 'no', 1: {'flippers': {0: {'head': {0: 'no', 1: 'yes'}}, 1: 'no'}}}}
+                  ]
+    return listOfTrees[i]
+myTree=retrieveTree(0)
+#print(classify(myTree,labels,[1,0]))
+#print(classify(myTree,labels,[1,1]))
+
+#5.因为构建决策树耗时严重， 因此构建成功将决策树保存，然后测试时从文件中直接读取使用
+#将构建的决策树写入文件
+def storeTree(inputTree,filename):
+    import pickle
+    fw = open(filename,'wb') #二进制写
+    pickle.dump(inputTree,fw,0) #0：ASCII协议，所序列化的对象使用可打印的ASCII码表示；
+                                #1：老式的二进制协议；
+                                #2：2.3版本引入的新二进制协议，较以前的更高效。其中协议0和1兼容老版本的python。protocol默认值为3。
+    fw.close()
+
+#从文件中读取决策树
+def grabTree(filename):
+    import pickle
+    fr = open(filename,'rb') #二进制读
+    return pickle.load(fr)
+#测试
+#storeTree(myTree,'ClassifierStorage.txt')
+#print(grabTree('ClassifierStorage.txt'))
