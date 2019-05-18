@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="IpnbSettings">
+    <option name="URL" value="http://127.0.0.1:8892/?token=6583b64cf7f976ecf3708e7c4186aab133680b9b5489853d" />
+  </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="false">
     <OptionsSetting value="true" id="添加" />
     <OptionsSetting value="true" id="移除" />
